@@ -34,18 +34,6 @@ public class DipendenteController {
         return this.dipendenteService.findByID(dipendenteID);
     }
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public Dipendente create(@RequestBody @Validated DipendenteDTO dipendenteDTO, BindingResult validationResult) {
-        if (validationResult.hasErrors()) {
-            String messages = validationResult.getAllErrors().stream()
-                    .map(objectError -> objectError.getDefaultMessage())
-                    .collect(Collectors.joining(", "));
-            throw new BadRequestEx("Ci sono stati errori nel payload: " + messages);
-        } else {
-            return dipendenteService.save(dipendenteDTO);
-        }
-    }
 
     @PutMapping("/{dipendenteID}")
     public Dipendente findAndUpdate(@PathVariable UUID dipendenteID, @RequestBody @Validated DipendenteDTO dipendenteDTO, BindingResult validationResult) {

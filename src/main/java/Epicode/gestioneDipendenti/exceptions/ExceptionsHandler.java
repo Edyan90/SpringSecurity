@@ -27,4 +27,11 @@ public class ExceptionsHandler {
         ex.printStackTrace();
         return new ErrorPayload("Problema lato server, apri un ticket e aspetta il tuo turno!", LocalDateTime.now());
     }
+
+    @ExceptionHandler(UnauthorizedEx.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorPayload handleUnauthorizedEx(UnauthorizedEx ex) {
+        return new ErrorPayload(ex.getMessage(), LocalDateTime.now());
+    }
+
 }

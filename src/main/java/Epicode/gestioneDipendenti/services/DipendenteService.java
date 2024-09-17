@@ -79,4 +79,8 @@ public class DipendenteService {
         }
     }
 
+    public Dipendente findByEmail(String email) {
+        return this.dipendenteRepository.findByEmail(email).orElseThrow(() -> new NotFoundEx(email));
+    }
+
 }
