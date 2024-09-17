@@ -32,4 +32,12 @@ public class JWTTools {
         }
 
     }
+
+    public String extractIDfromToken(String accessToken) {
+        return Jwts.parser()
+                .verifyWith(Keys.hmacShaKeyFor(secret.getBytes()))
+                .build().parseSignedClaims(accessToken)
+                .getPayload()
+                .getSubject();//subject è l'id del dipendente
+    }
 }

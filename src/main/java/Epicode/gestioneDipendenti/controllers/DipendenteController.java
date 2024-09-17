@@ -7,6 +7,8 @@ import Epicode.gestioneDipendenti.services.DipendenteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +25,7 @@ public class DipendenteController {
     DipendenteService dipendenteService;
 
     @GetMapping
+//    @PreAuthorize("hasAuthority('ADMIN')")
     public Page<Dipendente> findAll(@RequestParam(defaultValue = "0") int page,
                                     @RequestParam(defaultValue = "10") int size,
                                     @RequestParam(defaultValue = "nome") String sortBy) {
@@ -36,6 +39,7 @@ public class DipendenteController {
 
 
     @PutMapping("/{dipendenteID}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public Dipendente findAndUpdate(@PathVariable UUID dipendenteID, @RequestBody @Validated DipendenteDTO dipendenteDTO, BindingResult validationResult) {
         if (validationResult.hasErrors()) {
             String messages = validationResult.getAllErrors().stream()
@@ -49,6 +53,7 @@ public class DipendenteController {
 
     @DeleteMapping("/{dipendenteID}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasAuthority('ADMIN')")
     public void findAndDelete(@PathVariable UUID dipendenteID) {
         this.dipendenteService.findAndDelete(dipendenteID);
     }
@@ -57,4 +62,21 @@ public class DipendenteController {
     public Dipendente uploadAvatar(@PathVariable UUID dipendenteID, @RequestParam("avatar") MultipartFile image) throws IOException {
         return this.dipendenteService.avatarUpload(dipendenteID, image);
     }
+
+    @GetMapping("/me")
+    public Dipendente getProfile(@AuthenticationPrincipal Dipendente currentAuthenticatedDipendente) {
+        return currentAuthenticatedDipendente;
+    }
+
+    @PutMapping("/me")
+    public Dipendente updateProfile(@AuthenticationPrincipal Dipendente currentAuthenticatedDipendente, @RequestBody @Validated DipendenteDTO dipendenteDTO) {
+        return this.dipendenteService.update(currentAuthenticatedDipendente.getId(), dipendenteDTO);
+    }
+
+    @DeleteMapping("/me")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteProfile(@AuthenticationPrincipal Dipendente currentAuthenticatedDipendente) {
+        this.dipendenteService.findAndDelete(currentAuthenticatedDipendente.getId());
+    }
+
 }

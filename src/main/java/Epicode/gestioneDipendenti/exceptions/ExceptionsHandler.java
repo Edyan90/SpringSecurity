@@ -1,6 +1,7 @@
 package Epicode.gestioneDipendenti.exceptions;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -34,4 +35,9 @@ public class ExceptionsHandler {
         return new ErrorPayload(ex.getMessage(), LocalDateTime.now());
     }
 
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorPayload handleForbidden(AuthorizationDeniedException ex) {
+        return new ErrorPayload("Permessi non sufficienti", LocalDateTime.now());
+    }
 }

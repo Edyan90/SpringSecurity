@@ -1,8 +1,8 @@
 package Epicode.gestioneDipendenti.controllers;
 
-import Epicode.gestioneDipendenti.entities.Dipendente;
 import Epicode.gestioneDipendenti.exceptions.BadRequestEx;
 import Epicode.gestioneDipendenti.recordsDTO.DipendenteDTO;
+import Epicode.gestioneDipendenti.recordsDTO.DipendenteRespDTO;
 import Epicode.gestioneDipendenti.recordsDTO.LoginDTO;
 import Epicode.gestioneDipendenti.services.AuthService;
 import Epicode.gestioneDipendenti.services.DipendenteService;
@@ -29,14 +29,14 @@ public class AuthController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public Dipendente create(@RequestBody @Validated DipendenteDTO dipendenteDTO, BindingResult validationResult) {
+    public DipendenteRespDTO create(@RequestBody @Validated DipendenteDTO dipendenteDTO, BindingResult validationResult) {
         if (validationResult.hasErrors()) {
             String messages = validationResult.getAllErrors().stream()
                     .map(objectError -> objectError.getDefaultMessage())
                     .collect(Collectors.joining(", "));
             throw new BadRequestEx("Ci sono stati errori nel payload: " + messages);
         } else {
-            return dipendenteService.save(dipendenteDTO);
+            return new DipendenteRespDTO(this.dipendenteService.save(dipendenteDTO).getId());
         }
     }
 }

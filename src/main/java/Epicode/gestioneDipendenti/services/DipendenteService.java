@@ -1,6 +1,7 @@
 package Epicode.gestioneDipendenti.services;
 
 import Epicode.gestioneDipendenti.entities.Dipendente;
+import Epicode.gestioneDipendenti.enums.RoleType;
 import Epicode.gestioneDipendenti.exceptions.BadRequestEx;
 import Epicode.gestioneDipendenti.exceptions.NotFoundEx;
 import Epicode.gestioneDipendenti.recordsDTO.DipendenteDTO;
@@ -12,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,6 +26,9 @@ public class DipendenteService {
     DipendenteRepository dipendenteRepository;
     @Autowired
     Cloudinary cloudinary;
+    @Autowired
+    private PasswordEncoder bcrypt;
+
 
     public Page<Dipendente> findAll(int page, int size, String sortBy) {
         if (page > 10) page = 10;
@@ -43,8 +48,21 @@ public class DipendenteService {
                 dipendenteDTO.username(),
                 dipendenteDTO.nome(),
                 dipendenteDTO.cognome(),
-                dipendenteDTO.email()
+                dipendenteDTO.email(),
+                bcrypt.encode(dipendenteDTO.password())
         );
+        switch (dipendenteDTO.ruolo().toLowerCase()) {
+            case "dipendente":
+                dipendente.setRuolo(RoleType.DIPENDENTE);
+                break;
+            case "admin":
+                dipendente.setRuolo(RoleType.ADMIN);
+                break;
+
+            default:
+                throw new BadRequestEx("Stato non valido: " + dipendenteDTO.ruolo() +
+                        ". I valori validi sono: ADMIN, DIPENDENTE.");
+        }
         dipendente.setAvatar("https://ui-avatars.com/api/?name=" + dipendenteDTO.nome() + "+" + dipendenteDTO.cognome());
         return this.dipendenteRepository.save(dipendente);
     }

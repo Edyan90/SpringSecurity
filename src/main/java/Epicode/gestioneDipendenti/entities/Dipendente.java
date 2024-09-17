@@ -1,11 +1,15 @@
 package Epicode.gestioneDipendenti.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import Epicode.gestioneDipendenti.enums.RoleType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -14,7 +18,7 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor
 @ToString
-public class Dipendente {
+public class Dipendente implements UserDetails {
     @Id
     @GeneratedValue
     @Setter(AccessLevel.NONE)
@@ -24,11 +28,21 @@ public class Dipendente {
     private String cognome;
     private String email;
     private String avatar;
+    @JsonIgnore
+    private String password;
+    @Enumerated(EnumType.STRING)
+    private RoleType ruolo;
 
-    public Dipendente(String username, String nome, String cognome, String email) {
+    public Dipendente(String username, String nome, String cognome, String email, String password) {
         this.username = username;
         this.nome = nome;
         this.cognome = cognome;
         this.email = email;
+        this.password = password;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(this.ruolo.name()));
     }
 }
